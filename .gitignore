@@ -1,0 +1,3 @@
+/.vagrant/
+/packer_cache/
+/packer_mesos_virtualbox.box

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e
+
+container=$1
+run_command=$2
+
+
+if docker inspect $container 2>&1 >> /dev/null; then
+    echo "Container $container already exists, skipping docker run"
+else
+    docker run --restart always -d --name $container $run_command
+fi
+
+setup-runit-service $container "docker start -a $container"
+
+cat <<EOF > /etc/sv/$container/stop
+#!/bin/sh
+exec 2>&1
+exec docker stop $container
+EOF
+
+chmod 755 /etc/sv/$container/stop

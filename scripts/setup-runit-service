@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -e
+
+service=$1
+command=$2
+
+if [[ ! -h "/service" ]]
+then
+ln -s /etc/service /service
+fi
+
+mkdir -p /etc/sv/$service/log
+cat <<EOF > /etc/sv/$service/log/run
+#!/bin/sh
+exec svlogd -tt /var/log/$service
+EOF
+
+chmod 755 /etc/sv/$service/log/run
+mkdir -p /var/log/$service
+
+cat <<EOF > /etc/sv/$service/run
+#!/bin/sh
+exec 2>&1
+exec $command
+EOF
+
+chmod 755 /etc/sv/$service/run
+
+if [[ ! -h "/service/$service" ]]
+then
+ln -s /etc/sv/$service /service/
+fi
