@@ -5,19 +5,22 @@ ZOOKEEPER_VERSION = "3.4.6"
 MARATHON_VERSION = "v0.8.0"
 CHRONOS_VERSION = "2.1.0"
 MESOS_VERSION = "0.21.1"
+NUMBER_OF_SLAVES = 3
+MASTER_MEMORY = "512"
+SLAVE_MEMORY = "1024"
 
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  slave_host_entries = (1..NUMBER_OF_SLAVES).inject("") do |result, num|
+    result + "192.168.33.1#{num} mesos-slave#{num}.vagrant mesos-slave#{num}\n"
+  end
+
   $hosts = <<SCRIPT
 echo "127.0.0.1 localhost
 192.168.33.10 mesos-master.vagrant mesos-master
-192.168.33.11 mesos-slave1.vagrant mesos-slave1
-192.168.33.12 mesos-slave2.vagrant mesos-slave2
-192.168.33.13 mesos-slave3.vagrant mesos-slave3
-192.168.33.14 mesos-slave4.vagrant mesos-slave4
-192.168.33.15 mesos-slave5.vagrant mesos-slave5" > /etc/hosts
+#{slave_host_entries}" > /etc/hosts
 SCRIPT
 
   $master = <<SCRIPT
@@ -51,18 +54,18 @@ SCRIPT
     master_config.vm.host_name = "mesos-master.vagrant"
     master_config.vm.provision "shell", inline: $master
     master_config.vm.provider "virtualbox" do |v|
-      v.customize ["modifyvm", :id, "--memory", "512"]
+      v.customize ["modifyvm", :id, "--memory", MASTER_MEMORY]
     end
     # synced folder example: master_config.vm.synced_folder "~/repo", "/repo"
   end
 
-  (1..5).each do |id|
+  (1..NUMBER_OF_SLAVES).each do |id|
     config.vm.define "slave#{id}" do |slave_config|
       slave_config.vm.network "private_network", ip: "192.168.33.1#{id}"
       slave_config.vm.host_name = "mesos-slave#{id}.vagrant"
       slave_config.vm.provision "shell", inline: $slave
       slave_config.vm.provider "virtualbox" do |v|
-        v.customize ["modifyvm", :id, "--memory", "2048"]
+        v.customize ["modifyvm", :id, "--memory", SLAVE_MEMORY]
       end
       # synced folder example: master_config.vm.synced_folder "~/repo", "/repo"
     end
