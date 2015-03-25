@@ -3,7 +3,7 @@
 
 ZOOKEEPER_VERSION = "3.4.6"
 MARATHON_VERSION = "v0.8.0"
-CHRONOS_VERSION = "2.1.0"
+CHRONOS_VERSION = "latest"
 MESOS_VERSION = "0.21.1"
 NUMBER_OF_SLAVES = 3
 MASTER_MEMORY = "512"
@@ -38,7 +38,7 @@ SCRIPT
 export ZK_CONNECTION_STRING="zk://mesos-master.vagrant:2181"
 export ENV_NAME="vagrant"
 setup-runit-service docker "/usr/bin/docker -d --host=unix:///var/run/docker.sock --storage-driver=aufs"
-setup-runit-service mesos-slave "mesos-slave --work_dir=/tmp --master=$ZK_CONNECTION_STRING/mesos --containerizers=docker,mesos --hostname=$HOSTNAME --docker_stop_timeout=30secs --executor_registration_timeout=5mins"
+setup-runit-service mesos-slave "mesos-slave --work_dir=/tmp --master=$ZK_CONNECTION_STRING/mesos --containerizers=docker,mesos --hostname=$HOSTNAME --docker_stop_timeout=30secs --executor_registration_timeout=5mins --resources=mem:#{SLAVE_MEMORY.to_i - 256}"
 SCRIPT
 
   config.vm.box = "banno/mesos"
