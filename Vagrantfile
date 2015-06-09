@@ -49,7 +49,7 @@ SCRIPT
   config.vm.provision "shell", privileged: true, inline: "mv /home/vagrant/bin/* /usr/local/bin"
   config.vm.provision "shell", inline: $hosts
 
-  if File.directory?("CAs")
+  unless Dir["CAs/*"].empty?
     Dir["CAs/*"].each do |crt|
       config.vm.provision "file", source: "#{crt}", destination: "/home/vagrant/#{crt}"
       config.vm.provision "shell", privileged: true, inline: "rsync -plarq /home/vagrant/CAs/ /usr/local/share/ca-certificates/ && sudo update-ca-certificates"
