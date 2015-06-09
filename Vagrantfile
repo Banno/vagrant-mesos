@@ -49,6 +49,13 @@ SCRIPT
   config.vm.provision "shell", privileged: true, inline: "mv /home/vagrant/bin/* /usr/local/bin"
   config.vm.provision "shell", inline: $hosts
 
+  if File.directory?("CAs")
+    Dir["CAs/*"].each do |crt|
+      config.vm.provision "file", source: "#{crt}", destination: "/home/vagrant/#{crt}"
+      config.vm.provision "shell", privileged: true, inline: "rsync -plarq /home/vagrant/CAs/ /usr/local/share/ca-certificates/ && sudo update-ca-certificates"
+    end
+  end
+
   config.vm.define "master" do |master_config|
     master_config.vm.network "private_network", ip: "192.168.33.10"
     master_config.vm.host_name = "mesos-master.vagrant"
