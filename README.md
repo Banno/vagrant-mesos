@@ -35,6 +35,10 @@ Change `NUMBER_OF_SLAVES` variable in [Vagranfile](Vagrantfile)
 
 Change `MASTER_MEMORY` and/or `SLAVE_MEMORY` variable in [Vagranfile](Vagrantfile)
 
+## Install and Root level CA
+
+Put your ca file(s) in the CAs directory
+
 ## Packer Build
 
 ### Requirements
